@@ -1,11 +1,15 @@
 # Manufacturing Quote Assistant (Demo)
 
-A browser demo of two things on Japanese manufacturing documents (PDFs):
-**answering questions with citations**, and **drafting a quote from an inquiry email**.
-Every company, part number and document here is fictional.
+Ask a question against eight internal manufacturing documents (PDFs) and you get an answer plus
+its **citation** — document, page and the quoted passage. Paste an inquiry email and it reads the
+part number, quantity and lead time, then drafts a quote from past quotes and the internal pricing
+rules. The money is computed in code; **the LLM only writes the prose**. Unit price, volume
+discount and rush surcharge are pinned by tests, so changing the model does not change the figure.
+A part with no quote history gets no unit price — it shows as **"not priced"** and the total reads
+**"not settled"**. Every company, part number and document here is fictional.
 
-By default it calls no external API (`LLM_PROVIDER=mock`). Switching it to the Anthropic API
-**does not change a single yen** of the quoted price — see "Deterministic math, LLM only formats".
+Built with Next.js (TypeScript) and Python. It runs on a `mock` provider that calls no external
+API by default; one environment variable switches it to Claude.
 
 ---
 
