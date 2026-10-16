@@ -76,6 +76,11 @@ Points a human must check (4)
 The subtotal is never presented as the total. That is driven by `hasUnquotedItems` from
 `quote.ts` and pinned by vitest.
 
+![Quote draft with an unpriced line](docs/screenshots/quote-unquoted.png)
+
+*A part with no quote history gets no unit price — it shows as "not priced", and the subtotal is
+explicitly marked as not being the total*
+
 `/quote?sample=inquiry-01` (or `inquiry-02`) opens the page with that sample already drafted.
 
 ---
