@@ -1,0 +1,188 @@
+# Manufacturing Quote Assistant (Demo)
+
+A browser demo of two things on Japanese manufacturing documents (PDFs):
+**answering questions with citations**, and **drafting a quote from an inquiry email**.
+Every company, part number and document here is fictional.
+
+By default it calls no external API (`LLM_PROVIDER=mock`). Switching it to the Anthropic API
+**does not change a single yen** of the quoted price — see "Deterministic math, LLM only formats".
+
+---
+
+## What it does
+
+### 1. Ask the documents (`/ask`)
+
+![Ask screen](docs/screenshots/ask.png)
+
+You get an answer plus **citation cards** (document, page, excerpt). Clicking a card jumps to
+that page in the document viewer and highlights the quoted passage.
+
+| Question | What comes back |
+| --- | --- |
+| What did we quote for SS-1023 last time? | Latest quote no., date, quantity, unit price, amount, lead time, plus the two earlier ones |
+| What is the rush surcharge? | The 10/7/5 business-day tiers, and that it applies after the volume discount |
+| What material and finish is SF-2040? | Material, finish, dimensions, tolerance, minimum lot, standard lead time |
+| What did we quote for CV-3015 last time? | **"Not found in the documents."** (a part with a spec sheet but no quote history) |
+
+The fourth one is the point: when there is no basis, it does not invent a price.
+
+`/ask?q=<question>` opens the page with that question already answered, so a link can be shared.
+
+### 2. Draft a quote from an inquiry (`/quote`)
+
+![Quote screen](docs/screenshots/quote.png)
+
+Paste an inquiry email. It extracts part number, quantity and requested lead time, then builds
+a unit price from past quotes and the internal pricing rules. You get more than a number:
+
+- **Where the price came from** — base price → volume discount → rush surcharge, one step at a
+  time, each with the before/after figure and the document and page it used.
+- **Points a human must check** — the reasons this draft cannot go out as is.
+
+Actual output for sample 1 (SS-1023, 150 pcs, 10 business days):
+
+```
+Interpolated between 100 pcs @ 2,310 JPY and 200 pcs @ 1,980 JPY  -> 2,145 JPY
+3% volume discount, 100+ pcs (Internal rule 4, p1)                -> 2,081 JPY
+20% rush surcharge, within 10 business days (Internal rule 5, p1) -> 2,497 JPY
+Total 374,550 JPY (excl. tax)
+
+Points a human must check (1)
+- Quote Q-2026-0325 (2026-03-25) predates the 2026-07-01 material cost revision.
+  Steel went up 8%; confirm whether that needs to be reflected.
+```
+
+Sample 2 produces both a part with only one past quote (cannot interpolate) and a part with no
+quote history at all (no draft produced).
+
+`/quote?sample=inquiry-01` (or `inquiry-02`) opens the page with that sample already drafted.
+
+---
+
+## Design notes
+
+### Deterministic math, LLM only formats
+
+If an LLM produces the numbers, nobody notices when it quietly gets a digit or a tier wrong.
+So the responsibilities are split:
+
+```
+unit price, discount, surcharge, lead time  -> web/lib/quote.ts   pure TypeScript, no LLM
+facts the answer may use                    -> web/lib/answer.ts  derived deterministically
+Japanese prose                              -> web/lib/llm/*      the only place an LLM runs
+```
+
+The LLM receives **already-computed numbers**, and the prompt tells it not to go beyond the
+given facts and to say so when there are none. Swap the model and the money does not move.
+On `/ask`, expanding "how this answer was assembled" shows the exact facts handed to the LLM.
+
+A useful side effect: every price path is pinned by tests (`web/tests/quote.test.ts`).
+
+### BM25 rather than embeddings
+
+Part numbers (`SS-1023`) and rates (`3%`) are short tokens where exactness matters, and vector
+search is weak on them — plus generating embeddings would require an external API.
+
+Japanese is indexed as **character bigrams** rather than through a morphological analyser, which
+would mis-split part numbers and material codes that are not in its dictionary. Alphanumerics are
+indexed both whole (`ss-1023`) and split (`ss`, `1023`).
+
+Bigrams do produce false hits — Japanese for "bracket" and "robot" share a bigram. A relevance
+floor in `answer.ts` turns those into "not found" rather than a confident wrong answer.
+
+### pdfplumber table extraction
+
+Quote figures live in ruled tables. Splitting text on whitespace shifts a column whenever a cell
+contains a space (`SPCC t3.2`), which swaps unit price and amount. `extract_tables()` recovers
+cell boundaries from the rules, so that cannot happen. Only the grand total, which sits outside
+any table, is matched with a regular expression.
+
+### Citations that cannot drift
+
+Chunks never span pages — if they did, "which page" would stop having one answer. Chunks are cut
+at section headings, and the heading stays as the first line of the chunk so an excerpt reads on
+its own.
+
+---
+
+## Layout
+
+```
+mfg-quote-assistant/
+  data/
+    source/      fictional source documents (YAML / Markdown)
+    pdf/         generated PDFs (committed)
+    fonts/       IPAexGothic (IPA Font License v1.0 included)
+  ingest/        Python: PDF generation, extraction, chunking, field extraction (46 pytest)
+  web/           Next.js App Router + TypeScript (87 vitest)
+```
+
+---
+
+## Running locally
+
+Regenerating the documents is optional — the outputs are committed.
+
+```bash
+cd ingest
+python -m venv .venv
+source .venv/bin/activate      # Windows: .\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+
+python -m ingest.make_pdfs     # data/source/*.yaml -> data/pdf/*.pdf
+python -m ingest.build_index   # data/pdf/*.pdf -> web/public/*.json
+python -m pytest
+```
+
+```bash
+cd web
+npm install
+npm run dev        # http://localhost:3000
+```
+
+```bash
+cd web
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+---
+
+## Switching to Claude
+
+The default is `mock`. `LLM_PROVIDER` unset, empty or unrecognised all resolve to `mock`; only an
+explicit `claude` calls the Anthropic API. `lib/llm/claude.ts` is loaded via dynamic import, so
+while the provider is `mock` the Anthropic SDK is never even evaluated.
+
+```bash
+# web/.env.local (git-ignored)
+LLM_PROVIDER=claude
+ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_MODEL=claude-opus-5-5   # optional
+```
+
+Only the wording changes. Prices, citations and review points stay identical. The footer shows
+which provider is active.
+
+> This bills against your Anthropic account. Tests, builds and CI all run on `mock`.
+
+---
+
+## Limits
+
+- No auth, no database. The data is static JSON.
+- Quantity interpolation stays inside the observed range; outside it the nearest unit price is
+  used without extrapolation, and that is surfaced as a review point.
+- The internal rule figures come from YAML (regex over prose is brittle), but the cited page
+  numbers come from the extracted PDF, so a drift between the two fails the tests.
+- The minimum-order-value branch (30,000 JPY) is unreachable with the current fictional data.
+
+---
+
+## Assets
+
+`data/fonts/ipaexg.ttf` is IPAexGothic, under the IPA Font License v1.0. The full licence text is
+included in the same directory.

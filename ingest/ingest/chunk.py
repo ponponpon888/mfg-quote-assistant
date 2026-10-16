@@ -98,7 +98,8 @@ def chunk_document(
                 continue
             chunks.append(
                 Chunk(
-                    chunk_id=f"{doc_id}#p{page}#c{counter}",
+                    # URL のフラグメントに載せるので、`#` は使わない。
+                    chunk_id=f"{doc_id}::p{page}::c{counter}",
                     doc_id=doc_id,
                     doc_title=doc_title,
                     doc_type=doc_type,
