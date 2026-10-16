@@ -42,6 +42,32 @@ def _json_default(value: Any) -> str:
     raise TypeError(f"JSON にできない型です: {type(value).__name__}")
 
 
+def load_inquiries(source_dir: Path) -> list[dict[str, Any]]:
+    """問い合わせメール（Markdown）を読む。PDF にはせず、画面のサンプル入力に使う。
+
+    冒頭の `---` で囲んだ数行は id と label。本文と分けて返す。
+    """
+    inquiries: list[dict[str, Any]] = []
+    for path in sorted(source_dir.glob("inquiry_*.md")):
+        raw = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+        meta: dict[str, str] = {}
+        body = raw
+        if raw.startswith("---\n"):
+            _, front, body = raw.split("---\n", 2)
+            for line in front.strip().split("\n"):
+                if ":" in line:
+                    key, value = line.split(":", 1)
+                    meta[key.strip()] = value.strip()
+        inquiries.append(
+            {
+                "id": meta.get("id", path.stem),
+                "label": meta.get("label", path.stem),
+                "text": body.strip(),
+            }
+        )
+    return inquiries
+
+
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(payload, ensure_ascii=False, indent=2, default=_json_default) + "\n"
@@ -153,6 +179,8 @@ def build(
             "chunks": chunks,
         },
     )
+    inquiries = load_inquiries(source_dir)
+
     _write_json(
         out_dir / "quotes.json",
         {
@@ -161,6 +189,7 @@ def build(
             "quotes": quotes,
             "parts": parts,
             "rules": rules,
+            "inquiries": inquiries,
         },
     )
 
@@ -169,6 +198,7 @@ def build(
         "chunks": len(chunks),
         "quotes": len(quotes),
         "parts": len(parts),
+        "inquiries": len(inquiries),
         "has_rules": bool(rules),
         "out_dir": str(out_dir),
     }
@@ -184,7 +214,8 @@ def main() -> None:
     stats = build(args.source, args.pdf, args.out)
     print(
         f"書類 {stats['docs']} 件 / チャンク {stats['chunks']} 件 / "
-        f"過去見積 {stats['quotes']} 件 / 部品 {stats['parts']} 件"
+        f"過去見積 {stats['quotes']} 件 / 部品 {stats['parts']} 件 / "
+        f"問い合わせ {stats['inquiries']} 件"
     )
     print(f"社内ルール: {'あり' if stats['has_rules'] else 'なし'}")
     print(f"出力先: {stats['out_dir']}")

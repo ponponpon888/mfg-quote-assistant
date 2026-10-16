@@ -134,3 +134,26 @@ def test_quotes_are_sorted_by_issue_date(built) -> None:
     _, _, quotes = built
     issued = [q["issued_on"] for q in quotes["quotes"]]
     assert issued == sorted(issued)
+
+
+def test_inquiries_are_loaded_without_front_matter(built) -> None:
+    """問い合わせメールは PDF にせず、画面のサンプル入力として JSON に入れる。"""
+    _, _, quotes = built
+    inquiries = quotes["inquiries"]
+    assert [item["id"] for item in inquiries] == ["inquiry-01", "inquiry-02"]
+    for item in inquiries:
+        assert item["label"]
+        assert item["text"]
+        # 冒頭の `---` ブロックは本文に残さない。
+        assert not item["text"].startswith("---")
+        assert "label:" not in item["text"]
+
+
+def test_inquiries_mention_the_expected_parts(built) -> None:
+    """/quote のデモが成立する前提。①は短納期、②は実績の無い図番を含む。"""
+    _, _, quotes = built
+    by_id = {item["id"]: item["text"] for item in quotes["inquiries"]}
+    assert "SS-1023" in by_id["inquiry-01"]
+    assert "営業日" in by_id["inquiry-01"]
+    assert "SF-2040" in by_id["inquiry-02"]
+    assert "CV-3015" in by_id["inquiry-02"]
