@@ -1,0 +1,27 @@
+doc_id: QUOTE-2026-0521
+doc_type: quote
+title: 御見積書 Q-2026-0521
+issued_on: 2026-05-21
+quote_no: Q-2026-0521
+customer: ダミー産業株式会社（架空）
+issuer: 株式会社サンプル精機（架空）
+valid_until: 2026-06-20
+payment_terms: 月末締め翌月末現金払い
+delivery_place: 発注者指定倉庫（運賃別途）
+lines:
+  - drawing_no: SF-2040
+    name: シャフト
+    material: S45C
+    surface_treatment: 硬質クロムメッキ
+    quantity: 30
+    material_cost: 1420
+    processing_cost: 3480
+    surface_cost: 700
+    unit_price: 5600
+    amount: 168000
+    lead_time_days: 21
+notes: |
+  ・本見積は材料費改定（2026-07-01）前の単価です。
+  ・熱処理および硬質クロムメッキは外注工程のため、納期は 21 営業日としています。
+  ・数量 30 本は最小ロット 10 本を満たしています。
+  ・上記金額に消費税は含まれておりません。

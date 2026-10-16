@@ -1,0 +1,27 @@
+doc_id: QUOTE-2026-0325
+doc_type: quote
+title: 御見積書 Q-2026-0325
+issued_on: 2026-03-25
+quote_no: Q-2026-0325
+customer: 株式会社テスト工業（架空）
+issuer: 株式会社サンプル精機（架空）
+valid_until: 2026-04-24
+payment_terms: 月末締め翌月末現金払い
+delivery_place: 発注者指定倉庫（運賃別途）
+lines:
+  - drawing_no: SS-1023
+    name: ブラケット
+    material: SPCC t3.2
+    surface_treatment: ユニクロメッキ
+    quantity: 200
+    material_cost: 740
+    processing_cost: 1010
+    surface_cost: 230
+    unit_price: 1980
+    amount: 396000
+    lead_time_days: 18
+notes: |
+  ・本見積は材料費改定（2026-07-01）前の単価です。
+  ・数量 200 個につき、社内値引基準の 3% 区分を適用済みです。
+  ・まとめ生産のため納期は 18 営業日としています。
+  ・上記金額に消費税は含まれておりません。
