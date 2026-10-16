@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { quoteData } from "@/lib/data";
+import { composeMockQuoteNote } from "@/lib/llm/mock";
 import { buildQuoteDraft, buildQuoteLine, interpolateUnitPrice } from "@/lib/quote";
 
 const REVISION = quoteData.rules.values.material_revision.effective_from;
@@ -212,20 +213,33 @@ describe("buildQuoteLine: 書類に無い図番", () => {
   });
 });
 
-describe("buildQuoteDraft", () => {
+describe("buildQuoteDraft: 単価を出せない明細が混ざる場合", () => {
   const draft = buildQuoteDraft([
     { drawingNo: "SF-2040", quantity: 60, leadTimeDays: null },
     { drawingNo: "CV-3015", quantity: 30, leadTimeDays: null },
   ]);
 
-  it("見積できた行だけを合計に入れる", () => {
-    expect(draft.total).toBe(5600 * 60);
+  it("小計には単価が確定した行だけを入れる", () => {
+    expect(draft.subtotal).toBe(5600 * 60);
   });
 
-  it("確認事項に図番を付けて並べる", () => {
-    expect(draft.reviewPoints.every((point) => /^[A-Z]{2}-\d{4}: /.test(point))).toBe(
-      true,
-    );
+  it("未確定の明細があることをフラグで返す", () => {
+    expect(draft.hasUnquotedItems).toBe(true);
+    expect(draft.unquotedDrawingNumbers).toEqual(["CV-3015"]);
+  });
+
+  it("確認事項の先頭が「合計は未確定」である", () => {
+    // 小計を合計額と読み違えると、足りない金額のまま客先に出てしまう。
+    // この一文が先頭から動かないことを固定しておく。
+    expect(draft.reviewPoints[0]).toContain("CV-3015");
+    expect(draft.reviewPoints[0]).toContain("単価が確定していません");
+    expect(draft.reviewPoints[0]).toContain("見積の合計額ではありません");
+  });
+
+  it("先頭以外の確認事項には図番が付く", () => {
+    expect(
+      draft.reviewPoints.slice(1).every((point) => /^[A-Z]{2}-\d{4}: /.test(point)),
+    ).toBe(true);
   });
 
   it("実績 1 件しか無い図番について注意を出す", () => {
@@ -234,5 +248,46 @@ describe("buildQuoteDraft", () => {
 
   it("有効期限の日数を社内ルールから引く", () => {
     expect(draft.quoteValidityDays).toBe(30);
+  });
+});
+
+describe("buildQuoteDraft: 全明細の単価が確定する場合", () => {
+  const draft = buildQuoteDraft([
+    { drawingNo: "SS-1023", quantity: 150, leadTimeDays: 10 },
+  ]);
+
+  it("未確定フラグが立たない", () => {
+    expect(draft.hasUnquotedItems).toBe(false);
+    expect(draft.unquotedDrawingNumbers).toEqual([]);
+  });
+
+  it("小計が明細の金額と一致する", () => {
+    expect(draft.subtotal).toBe(2497 * 150);
+  });
+
+  it("確認事項の先頭に「未確定」の断り書きを入れない", () => {
+    expect(draft.reviewPoints[0]).not.toContain("単価が確定していません");
+  });
+});
+
+describe("composeMockQuoteNote", () => {
+  it("未確定の明細があるときは「小計」と呼び、合計が未確定だと書く", () => {
+    const draft = buildQuoteDraft([
+      { drawingNo: "SF-2040", quantity: 60, leadTimeDays: null },
+      { drawingNo: "CV-3015", quantity: 30, leadTimeDays: null },
+    ]);
+    const note = composeMockQuoteNote(draft);
+    expect(note).toContain("小計（単価確定分のみ）");
+    expect(note).toContain("合計金額は未確定です");
+    expect(note).not.toContain("合計 336,000 円");
+  });
+
+  it("全明細が確定しているときは「合計」と呼ぶ", () => {
+    const draft = buildQuoteDraft([
+      { drawingNo: "SS-1023", quantity: 150, leadTimeDays: 10 },
+    ]);
+    const note = composeMockQuoteNote(draft);
+    expect(note).toContain("合計 374,550 円");
+    expect(note).not.toContain("未確定");
   });
 });

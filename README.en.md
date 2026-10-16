@@ -39,6 +39,8 @@ a unit price from past quotes and the internal pricing rules. You get more than 
 - **Where the price came from** — base price → volume discount → rush surcharge, one step at a
   time, each with the before/after figure and the document and page it used.
 - **Points a human must check** — the reasons this draft cannot go out as is.
+- **No unsettled figure presented as settled** — if even one line has no price, the money column
+  becomes "subtotal (priced lines only)" and the total reads "not settled".
 
 Actual output for sample 1 (SS-1023, 150 pcs, 10 business days):
 
@@ -54,7 +56,25 @@ Points a human must check (1)
 ```
 
 Sample 2 produces both a part with only one past quote (cannot interpolate) and a part with no
-quote history at all (no draft produced).
+quote history at all (no draft produced). Because of the latter:
+
+```
+SF-2040  qty 60   5,600 JPY   336,000 JPY   18 business days
+CV-3015  qty 30   not priced (no quote history)   14 business days
+
+                  Subtotal (priced lines only, excl. tax)   336,000 JPY
+                  Total (excl. tax)                         not settled
+
+Points a human must check (4)
+- CV-3015 has no settled unit price. The 336,000 JPY subtotal covers only the priced lines
+  and is not the quote total.
+- SF-2040: only one past quote (Q-2026-0521) is available, so no interpolation...
+- SF-2040: Q-2026-0521 (2026-05-21) predates the material cost revision...
+- CV-3015: no past quote exists for this part number at all...
+```
+
+The subtotal is never presented as the total. That is driven by `hasUnquotedItems` from
+`quote.ts` and pinned by vitest.
 
 `/quote?sample=inquiry-01` (or `inquiry-02`) opens the page with that sample already drafted.
 

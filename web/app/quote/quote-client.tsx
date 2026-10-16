@@ -42,7 +42,10 @@ interface QuoteItem {
 
 interface QuoteResponse {
   items: QuoteItem[];
-  total: number;
+  /** 単価が確定した明細だけの合計。未見積があるときは確定額ではない。 */
+  subtotal: number;
+  hasUnquotedItems: boolean;
+  unquotedDrawingNumbers: string[];
   quoteValidityDays: number;
   reviewPoints: string[];
   note: string;
@@ -235,12 +238,20 @@ export function QuoteClient({ samples }: { samples: Sample[] }) {
                           </span>
                         )}
                       </td>
-                      <td className="px-3 py-2 text-right">
-                        {item.unitPrice === null ? "—" : yen(item.unitPrice)}
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        {item.amount === null ? "—" : yen(item.amount)}
-                      </td>
+                      {item.quotable ? (
+                        <>
+                          <td className="px-3 py-2 text-right">
+                            {item.unitPrice === null ? "—" : yen(item.unitPrice)}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            {item.amount === null ? "—" : yen(item.amount)}
+                          </td>
+                        </>
+                      ) : (
+                        <td colSpan={2} className="text-warning px-3 py-2 text-right">
+                          未見積（過去見積なし）
+                        </td>
+                      )}
                       <td className="px-3 py-2 text-right">
                         {item.leadTimeDays === null
                           ? "—"
@@ -252,18 +263,39 @@ export function QuoteClient({ samples }: { samples: Sample[] }) {
                 <tfoot className="border-line border-t">
                   <tr>
                     <td colSpan={5} className="px-3 py-2 text-right text-xs">
-                      合計（消費税別）
+                      {result.hasUnquotedItems
+                        ? "小計（単価確定分のみ・消費税別）"
+                        : "合計（消費税別）"}
                     </td>
                     <td className="px-3 py-2 text-right font-semibold">
-                      {yen(result.total)}
+                      {yen(result.subtotal)}
                     </td>
                     <td />
                   </tr>
+                  {/* 未見積があるときは、小計を合計額と読み違えさせない。 */}
+                  {result.hasUnquotedItems && (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-2 text-right text-xs">
+                        合計（消費税別）
+                      </td>
+                      <td className="text-warning px-3 py-2 text-right font-semibold">
+                        未確定
+                      </td>
+                      <td />
+                    </tr>
+                  )}
                 </tfoot>
               </table>
             </div>
             <p className="text-muted text-xs">
               見積有効期限は発行日から {result.quoteValidityDays} 日（社内見積基準）。
+              {result.hasUnquotedItems && (
+                <span className="text-warning">
+                  {" "}
+                  {result.unquotedDrawingNumbers.join("、")}{" "}
+                  の単価が未確定のため、この小計は見積の合計額ではありません。
+                </span>
+              )}
             </p>
           </section>
 

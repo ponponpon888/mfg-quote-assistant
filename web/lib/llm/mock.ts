@@ -27,13 +27,14 @@ export function composeMockQuoteNote(draft: QuoteDraft): string {
 
   const lines: string[] = [];
   if (quotable.length > 0) {
+    const label = draft.hasUnquotedItems ? "小計（単価確定分のみ）" : "合計";
     lines.push(
-      `${quotable.map((item) => item.drawingNo).join("、")} について、過去見積と社内見積基準から下書きを作成しました。合計 ${draft.total.toLocaleString()} 円（消費税別）、見積有効期限は発行日から ${draft.quoteValidityDays} 日です。`,
+      `${quotable.map((item) => item.drawingNo).join("、")} について、過去見積と社内見積基準から下書きを作成しました。${label} ${draft.subtotal.toLocaleString()} 円（消費税別）、見積有効期限は発行日から ${draft.quoteValidityDays} 日です。`,
     );
   }
   if (skipped.length > 0) {
     lines.push(
-      `${skipped.map((item) => item.drawingNo).join("、")} は過去見積が書類の中にないため、下書きに含めていません。`,
+      `${skipped.map((item) => item.drawingNo).join("、")} は過去見積が書類の中にないため単価を出していません。合計金額は未確定です。`,
     );
   }
   if (draft.reviewPoints.length > 0) {

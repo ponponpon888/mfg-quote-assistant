@@ -46,7 +46,9 @@ export async function POST(request: Request) {
   return Response.json({
     parsed: parsed.items,
     items: draft.items,
-    total: draft.total,
+    subtotal: draft.subtotal,
+    hasUnquotedItems: draft.hasUnquotedItems,
+    unquotedDrawingNumbers: draft.unquotedDrawingNumbers,
     quoteValidityDays: draft.quoteValidityDays,
     reviewPoints,
     note,

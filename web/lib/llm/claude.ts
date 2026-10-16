@@ -32,6 +32,7 @@ const QUOTE_SYSTEM = [
   "あなたは日本の町工場の見積担当を補助するアシスタントです。",
   "すでに計算済みの見積下書きについて、送付前の申し送りを日本語で 2〜3 文にまとめてください。",
   "金額・数量・納期・割増率を自分で計算してはいけません。与えられた数値をそのまま引用してください。",
+  "未見積の明細がある場合、小計を合計額と呼んではいけません。合計金額が未確定であることを必ず書いてください。",
   "確認事項がある場合は、件数に触れ、人が確認する前提であることを明記してください。",
 ].join("\n");
 
@@ -110,7 +111,10 @@ export function createClaudeLlm(): Llm {
 
     async composeQuoteNote(draft: QuoteDraft): Promise<string> {
       const summary = [
-        `合計: ${draft.total.toLocaleString()} 円（消費税別）`,
+        draft.hasUnquotedItems
+          ? `小計（単価確定分のみ）: ${draft.subtotal.toLocaleString()} 円（消費税別）。` +
+            `${draft.unquotedDrawingNumbers.join("、")} が未見積のため、合計金額は未確定。`
+          : `合計: ${draft.subtotal.toLocaleString()} 円（消費税別）`,
         `見積有効期限: 発行日から ${draft.quoteValidityDays} 日`,
         `確認事項: ${draft.reviewPoints.length} 件`,
         "",
@@ -118,7 +122,7 @@ export function createClaudeLlm(): Llm {
         ...draft.items.map((item) =>
           item.quotable
             ? `- ${item.drawingNo} ${item.name} 数量 ${item.quantity.toLocaleString()} / 単価 ${item.unitPrice?.toLocaleString()} 円 / 納期 ${item.leadTimeDays} 営業日`
-            : `- ${item.drawingNo} 見積不可（${item.note}）`,
+            : `- ${item.drawingNo} 未見積（${item.note}）`,
         ),
       ].join("\n");
 

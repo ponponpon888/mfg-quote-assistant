@@ -65,7 +65,15 @@ export interface QuoteLineResult {
 
 export interface QuoteDraft {
   items: QuoteLineResult[];
-  total: number;
+  /**
+   * 単価が確定した明細だけの合計。未見積の明細があるときは見積の合計額ではない。
+   * 「合計」と呼ばないのは、確定額として読まれると事故になるため。
+   */
+  subtotal: number;
+  /** 単価を出せなかった明細があるか。true のとき subtotal は確定額ではない。 */
+  hasUnquotedItems: boolean;
+  /** 単価を出せなかった図番。 */
+  unquotedDrawingNumbers: string[];
   reviewPoints: string[];
   quoteValidityDays: number;
 }
@@ -377,11 +385,26 @@ export function buildQuoteLine(item: QuoteRequestItem): QuoteLineResult {
 
 export function buildQuoteDraft(items: QuoteRequestItem[]): QuoteDraft {
   const results = items.map(buildQuoteLine);
-  const total = results.reduce((sum, item) => sum + (item.amount ?? 0), 0);
+  const subtotal = results.reduce((sum, item) => sum + (item.amount ?? 0), 0);
+
+  const unquotedDrawingNumbers = results
+    .filter((item) => !item.quotable)
+    .map((item) => item.drawingNo);
+  const hasUnquotedItems = unquotedDrawingNumbers.length > 0;
+
+  const reviewPoints: string[] = [];
+
+  // 未見積の明細があることは真っ先に伝える。小計を合計額と読み違えると、
+  // 足りない金額のまま客先に出てしまう。
+  if (hasUnquotedItems) {
+    reviewPoints.push(
+      `${unquotedDrawingNumbers.join("、")} の単価が確定していません。` +
+        `小計 ${subtotal.toLocaleString()} 円は単価が確定した明細だけの金額で、見積の合計額ではありません。`,
+    );
+  }
 
   // 行ごとの確認事項をまとめる。同じ文言は 1 回だけ出す。
   const seen = new Set<string>();
-  const reviewPoints: string[] = [];
   for (const result of results) {
     for (const point of result.reviewPoints) {
       const key = `${result.drawingNo}:${point}`;
@@ -393,7 +416,9 @@ export function buildQuoteDraft(items: QuoteRequestItem[]): QuoteDraft {
 
   return {
     items: results,
-    total,
+    subtotal,
+    hasUnquotedItems,
+    unquotedDrawingNumbers,
     reviewPoints,
     quoteValidityDays: quoteData.rules.values.quote_validity_days,
   };
