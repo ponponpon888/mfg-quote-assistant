@@ -7,7 +7,7 @@ part:
   drawing_no: CV-3015
   name: カバー
   material: SUS304 t1.5
-  surface_treatment: バフ研磨 #400
+  surface_treatment: "バフ研磨 #400"
   dimensions: 300 x 150 x t1.5 mm
   tolerance: ±0.3 mm
   process_category: 板金

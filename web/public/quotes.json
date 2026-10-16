@@ -1,0 +1,261 @@
+{
+  "generated_at": "2026-10-16T06:29:41Z",
+  "company": "株式会社サンプル精機（架空）",
+  "quotes": [
+    {
+      "doc_id": "QUOTE-2026-0118",
+      "title": "御見積書 Q-2026-0118",
+      "pdf": "quote_2026-0118.pdf",
+      "page": 1,
+      "quote_no": "Q-2026-0118",
+      "issued_on": "2026-01-18",
+      "valid_until": "2026-02-17",
+      "customer": "株式会社テスト工業（架空）",
+      "issuer": "株式会社サンプル精機（架空）",
+      "payment_terms": "月末締め翌月末現金払い",
+      "delivery_place": "発注者指定倉庫（運賃別途）",
+      "total_amount": 124000,
+      "lines": [
+        {
+          "drawing_no": "SS-1023",
+          "name": "ブラケット",
+          "material": "SPCC t3.2",
+          "surface_treatment": "ユニクロメッキ",
+          "quantity": 50,
+          "unit_price": 2480,
+          "amount": 124000,
+          "material_cost": 760,
+          "processing_cost": 1480,
+          "surface_cost": 240,
+          "lead_time_days": 14
+        }
+      ]
+    },
+    {
+      "doc_id": "QUOTE-2026-0325",
+      "title": "御見積書 Q-2026-0325",
+      "pdf": "quote_2026-0325.pdf",
+      "page": 1,
+      "quote_no": "Q-2026-0325",
+      "issued_on": "2026-03-25",
+      "valid_until": "2026-04-24",
+      "customer": "株式会社テスト工業（架空）",
+      "issuer": "株式会社サンプル精機（架空）",
+      "payment_terms": "月末締め翌月末現金払い",
+      "delivery_place": "発注者指定倉庫（運賃別途）",
+      "total_amount": 396000,
+      "lines": [
+        {
+          "drawing_no": "SS-1023",
+          "name": "ブラケット",
+          "material": "SPCC t3.2",
+          "surface_treatment": "ユニクロメッキ",
+          "quantity": 200,
+          "unit_price": 1980,
+          "amount": 396000,
+          "material_cost": 740,
+          "processing_cost": 1010,
+          "surface_cost": 230,
+          "lead_time_days": 18
+        }
+      ]
+    },
+    {
+      "doc_id": "QUOTE-2026-0521",
+      "title": "御見積書 Q-2026-0521",
+      "pdf": "quote_2026-0521.pdf",
+      "page": 1,
+      "quote_no": "Q-2026-0521",
+      "issued_on": "2026-05-21",
+      "valid_until": "2026-06-20",
+      "customer": "ダミー産業株式会社（架空）",
+      "issuer": "株式会社サンプル精機（架空）",
+      "payment_terms": "月末締め翌月末現金払い",
+      "delivery_place": "発注者指定倉庫（運賃別途）",
+      "total_amount": 168000,
+      "lines": [
+        {
+          "drawing_no": "SF-2040",
+          "name": "シャフト",
+          "material": "S45C",
+          "surface_treatment": "硬質クロムメッキ",
+          "quantity": 30,
+          "unit_price": 5600,
+          "amount": 168000,
+          "material_cost": 1420,
+          "processing_cost": 3480,
+          "surface_cost": 700,
+          "lead_time_days": 21
+        }
+      ]
+    },
+    {
+      "doc_id": "QUOTE-2026-0806",
+      "title": "御見積書 Q-2026-0806",
+      "pdf": "quote_2026-0806.pdf",
+      "page": 1,
+      "quote_no": "Q-2026-0806",
+      "issued_on": "2026-08-06",
+      "valid_until": "2026-09-05",
+      "customer": "株式会社テスト工業（架空）",
+      "issuer": "株式会社サンプル精機（架空）",
+      "payment_terms": "月末締め翌月末現金払い",
+      "delivery_place": "発注者指定倉庫（運賃別途）",
+      "total_amount": 231000,
+      "lines": [
+        {
+          "drawing_no": "SS-1023",
+          "name": "ブラケット",
+          "material": "SPCC t3.2",
+          "surface_treatment": "ユニクロメッキ",
+          "quantity": 100,
+          "unit_price": 2310,
+          "amount": 231000,
+          "material_cost": 820,
+          "processing_cost": 1250,
+          "surface_cost": 240,
+          "lead_time_days": 15
+        }
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "doc_id": "SPEC-CV-3015",
+      "title": "部品仕様書 カバー CV-3015",
+      "pdf": "spec_cv-3015.pdf",
+      "drawing_no": "CV-3015",
+      "name": "カバー",
+      "material": "SUS304 t1.5",
+      "surface_treatment": "バフ研磨 #400",
+      "dimensions": "300 x 150 x t1.5 mm",
+      "tolerance": "±0.3 mm",
+      "process_category": "板金",
+      "min_lot": 20,
+      "standard_lead_time_days": 14,
+      "issued_on": "2026-02-03",
+      "revision": "Rev.1",
+      "issuer": "株式会社サンプル精機（架空）",
+      "page": 1
+    },
+    {
+      "doc_id": "SPEC-SF-2040",
+      "title": "部品仕様書 シャフト SF-2040",
+      "pdf": "spec_sf-2040.pdf",
+      "drawing_no": "SF-2040",
+      "name": "シャフト",
+      "material": "S45C",
+      "surface_treatment": "硬質クロムメッキ",
+      "dimensions": "φ20 x L240 mm",
+      "tolerance": "φ20 h7 (0 / -0.021)",
+      "process_category": "切削",
+      "min_lot": 10,
+      "standard_lead_time_days": 18,
+      "issued_on": "2025-09-22",
+      "revision": "Rev.2",
+      "issuer": "株式会社サンプル精機（架空）",
+      "page": 1
+    },
+    {
+      "doc_id": "SPEC-SS-1023",
+      "title": "部品仕様書 ブラケット SS-1023",
+      "pdf": "spec_ss-1023.pdf",
+      "drawing_no": "SS-1023",
+      "name": "ブラケット",
+      "material": "SPCC t3.2",
+      "surface_treatment": "ユニクロメッキ",
+      "dimensions": "120 x 80 x t3.2 mm",
+      "tolerance": "±0.2 mm",
+      "process_category": "板金",
+      "min_lot": 20,
+      "standard_lead_time_days": 14,
+      "issued_on": "2025-11-10",
+      "revision": "Rev.3",
+      "issuer": "株式会社サンプル精機（架空）",
+      "page": 1
+    }
+  ],
+  "rules": {
+    "doc_id": "RULE-001",
+    "title": "社内見積基準 RULE-001",
+    "pdf": "rule_internal-001.pdf",
+    "issued_on": "2026-07-01",
+    "values": {
+      "quote_validity_days": 30,
+      "min_order_amount": 30000,
+      "volume_discounts": [
+        {
+          "min_quantity": 100,
+          "rate": 0.03
+        },
+        {
+          "min_quantity": 300,
+          "rate": 0.07
+        },
+        {
+          "min_quantity": 1000,
+          "rate": 0.12
+        }
+      ],
+      "rush_surcharges": [
+        {
+          "max_lead_time_days": 5,
+          "rate": 0.5
+        },
+        {
+          "max_lead_time_days": 7,
+          "rate": 0.35
+        },
+        {
+          "max_lead_time_days": 10,
+          "rate": 0.2
+        }
+      ],
+      "min_lots": {
+        "板金": 20,
+        "切削": 10
+      },
+      "standard_lead_time_days": {
+        "板金": 14,
+        "切削": 18
+      },
+      "material_revision": {
+        "effective_from": "2026-07-01",
+        "increases": {
+          "鋼材": 0.08,
+          "ステンレス": 0.12
+        }
+      }
+    },
+    "refs": {
+      "quote_validity_days": {
+        "section": "2. 見積有効期限",
+        "page": 1
+      },
+      "min_order_amount": {
+        "section": "3. 最低受注金額",
+        "page": 1
+      },
+      "volume_discounts": {
+        "section": "4. 数量値引基準",
+        "page": 1
+      },
+      "rush_surcharges": {
+        "section": "5. 短納期割増率",
+        "page": 1
+      },
+      "min_lots": {
+        "section": "6. 最小ロット",
+        "page": 1
+      },
+      "standard_lead_time_days": {
+        "section": "7. 標準納期",
+        "page": 1
+      },
+      "material_revision": {
+        "section": "8. 材料費の改定",
+        "page": 2
+      }
+    }
+  }
+}

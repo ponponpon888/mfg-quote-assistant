@@ -1,0 +1,27 @@
+[project]
+name = "mfg-quote-ingest"
+version = "0.1.0"
+description = "架空の製造業書類を PDF 化し、テキスト抽出・チャンク化・項目抽出して検索インデックスを出力する"
+requires-python = ">=3.11"
+dependencies = [
+  "reportlab>=4.2",
+  "pdfplumber>=0.11",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ingest*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
