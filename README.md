@@ -1,5 +1,7 @@
 # 町工場の見積アシスタント（デモ）
 
+デモ: https://mfg-quote-assistant.vercel.app （架空の会社・書類です）
+
 製造業の社内文書（PDF 8 本）に質問すると、回答と**根拠**（書類名・ページ・該当箇所）を返します。
 問い合わせメールを貼れば、図番・数量・納期を読み取り、過去見積と社内規程から見積の下書きを作ります。
 金額の計算はコード側に閉じ、**LLM には文面の整形だけ**をさせています。単価・値引・短納期割増は
@@ -161,8 +163,8 @@ mfg-quote-assistant/
     source/      架空書類の元データ（YAML / Markdown）
     pdf/         生成した PDF（コミット済み）
     fonts/       IPAexゴシック（IPAフォントライセンス v1.0 同梱）
-  ingest/        Python：PDF 生成・抽出・チャンク化・項目抽出（pytest 46 件）
-  web/           Next.js App Router + TypeScript（vitest 87 件）
+  ingest/        Python：PDF 生成・抽出・チャンク化・項目抽出（pytest 48 件）
+  web/           Next.js App Router + TypeScript（vitest 94 件）
 ```
 
 ---

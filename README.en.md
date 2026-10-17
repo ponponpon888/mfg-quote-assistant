@@ -1,5 +1,7 @@
 # Manufacturing Quote Assistant (Demo)
 
+Live demo: https://mfg-quote-assistant.vercel.app (fictional company and documents)
+
 Ask a question against eight internal manufacturing documents (PDFs) and you get an answer plus
 its **citation** — document, page and the quoted passage. Paste an inquiry email and it reads the
 part number, quantity and lead time, then drafts a quote from past quotes and the internal pricing
@@ -143,8 +145,8 @@ mfg-quote-assistant/
     source/      fictional source documents (YAML / Markdown)
     pdf/         generated PDFs (committed)
     fonts/       IPAexGothic (IPA Font License v1.0 included)
-  ingest/        Python: PDF generation, extraction, chunking, field extraction (46 pytest)
-  web/           Next.js App Router + TypeScript (87 vitest)
+  ingest/        Python: PDF generation, extraction, chunking, field extraction (48 pytest)
+  web/           Next.js App Router + TypeScript (94 vitest)
 ```
 
 ---
