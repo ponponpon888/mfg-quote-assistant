@@ -5,6 +5,7 @@ import {
   SIMILARITY_FLOOR,
   findSimilarParts,
   generalTolerance,
+  machinability,
   materialFamily,
   outlineSize,
   primarySize,
@@ -40,6 +41,38 @@ describe("materialFamily", () => {
     const unknown = materialFamily("謎の新素材");
     expect(unknown.family).toBe("不明");
     expect(unknown.rank).toBe(0);
+  });
+});
+
+describe("machinability", () => {
+  it("切削では黄銅がいちばん削りやすく、ステンレスがいちばん削りにくい", () => {
+    const brass = machinability("切削", "C3604");
+    const steel = machinability("切削", "S45C");
+    const stainless = machinability("切削", "SUS304 t1.5");
+    expect(brass!.rank).toBeLessThan(steel!.rank);
+    expect(steel!.rank).toBeLessThan(stainless!.rank);
+  });
+
+  it("板金では鋼材がいちばん素直で、ステンレスがいちばん手間がかかる", () => {
+    const steel = machinability("板金", "SPCC t3.2");
+    const aluminium = machinability("板金", "A5052");
+    const stainless = machinability("板金", "SUS304 t1.5");
+    expect(steel!.rank).toBeLessThan(aluminium!.rank);
+    expect(aluminium!.rank).toBeLessThan(stainless!.rank);
+  });
+
+  it("工法によって順位が入れ替わる（黄銅は切削では最も楽、板金ではそうでない）", () => {
+    const brassTurning = machinability("切削", "C3604")!;
+    const steelTurning = machinability("切削", "S45C")!;
+    const brassSheet = machinability("板金", "C3604")!;
+    const steelSheet = machinability("板金", "SPCC t1.6")!;
+    expect(brassTurning.rank).toBeLessThan(steelTurning.rank);
+    expect(brassSheet.rank).toBeGreaterThan(steelSheet.rank);
+  });
+
+  it("表に無い工法・材質は null（推測で順位を作らない）", () => {
+    expect(machinability("鋳造", "SUS304")).toBeNull();
+    expect(machinability("切削", "謎の新素材")).toBeNull();
   });
 });
 
@@ -207,7 +240,7 @@ describe("findSimilarParts: 過去見積がある図番", () => {
 describe("priceDirections: 判定表どおりに振れる", () => {
   it("材質が鋼材からステンレスに変われば、材料費は上がる方向", () => {
     const directions = priceDirections(part("CV-2980"), part("PL-1150"));
-    const material = directions.find((item) => item.item === "材質");
+    const material = directions.find((item) => item.item === "材質（材料費）");
     expect(material?.direction).toBe("up");
     expect(material?.change).toBe("SPCC t1.6 → SUS304 t1.2");
     expect(material?.effect).toContain("材料費は上がる方向");
@@ -215,7 +248,69 @@ describe("priceDirections: 判定表どおりに振れる", () => {
 
   it("材質がステンレスから鋼材に変われば、材料費は下がる方向", () => {
     const directions = priceDirections(part("PL-1150"), part("CV-2980"));
-    expect(directions.find((item) => item.item === "材質")?.direction).toBe("down");
+    expect(
+      directions.find((item) => item.item === "材質（材料費）")?.direction,
+    ).toBe("down");
+  });
+
+  it("材質は材料費と加工性を別の行に分ける", () => {
+    const items = priceDirections(part("CV-2980"), part("PL-1150")).map(
+      (item) => item.item,
+    );
+    expect(items).toContain("材質（材料費）");
+    expect(items).toContain("材質（加工性）");
+    expect(items).not.toContain("材質");
+  });
+
+  it("板金でステンレスに変われば、材料費も加工費も上がる方向（同じ向き）", () => {
+    const directions = priceDirections(part("CV-2980"), part("PL-1150"));
+    expect(
+      directions.find((item) => item.item === "材質（材料費）")?.direction,
+    ).toBe("up");
+    const work = directions.find((item) => item.item === "材質（加工性）");
+    expect(work?.direction).toBe("up");
+    expect(work?.effect).toContain("板金では");
+    expect(work?.effect).toContain("加工硬化とスプリングバック");
+    expect(work?.effect).toContain("加工費は上がる方向");
+  });
+
+  it("切削で黄銅から鋼材に変われば、材料費と加工費が逆を向く", () => {
+    // 快削黄銅は材料こそ高いが削るのは楽。1 本の序列にまとめると、
+    // この打ち消し合いが見えなくなる。
+    const directions = priceDirections(part("SF-2040"), part("BS-4070"));
+
+    const cost = directions.find((item) => item.item === "材質（材料費）");
+    expect(cost?.direction).toBe("down");
+    expect(cost?.effect).toContain("材料費は下がる方向");
+
+    const work = directions.find((item) => item.item === "材質（加工性）");
+    expect(work?.direction).toBe("up");
+    expect(work?.effect).toContain("切削では");
+    expect(work?.effect).toContain("快削材で削りやすい");
+    expect(work?.effect).toContain("加工費は上がる方向");
+
+    expect(cost?.direction).not.toBe(work?.direction);
+  });
+
+  it("切削で鋼材から黄銅に変われば、向きがどちらも入れ替わる", () => {
+    const directions = priceDirections(part("BS-4070"), part("SF-2040"));
+    expect(
+      directions.find((item) => item.item === "材質（材料費）")?.direction,
+    ).toBe("up");
+    expect(
+      directions.find((item) => item.item === "材質（加工性）")?.direction,
+    ).toBe("down");
+  });
+
+  it("工法が違う候補には、加工性の行を出さない", () => {
+    // 加工のしやすさは工法で効き方が変わる。工法が違えば比べる意味がなく、
+    // 「工法」の行が比較そのものを使えないと言っている。
+    const items = priceDirections(part("CV-3015"), part("BS-4070")).map(
+      (item) => item.item,
+    );
+    expect(items).toContain("材質（材料費）");
+    expect(items).not.toContain("材質（加工性）");
+    expect(items).toContain("工法");
   });
 
   it("板厚が厚くなれば、材料費は上がる方向", () => {
@@ -261,9 +356,10 @@ describe("priceDirections: 判定表どおりに振れる", () => {
       (item) => item.item,
     );
     expect(items).not.toContain("工法");
-    expect(items).not.toContain("材質");
     expect(items).not.toContain("表面処理");
     expect(items).not.toContain("公差");
+    // 材質が同じ系統なら、材料費の行も加工性の行も出さない。
+    expect(items.filter((item) => item.startsWith("材質"))).toEqual([]);
   });
 
   it("率や金額は文面に出さない", () => {

@@ -147,6 +147,52 @@ export function materialFamily(material: string): MaterialFamily {
   return { family: "不明", rank: 0 };
 }
 
+export interface Machinability {
+  /** 加工のしにくさ。大きいほど加工費が上がる側。 */
+  rank: number;
+  /** なぜその順になるか。画面にそのまま出す。 */
+  note: string;
+}
+
+/**
+ * 工法ごとの、材質の加工しにくさ。
+ *
+ * 材料費の序列（MATERIAL_FAMILIES）と分けているのは、2 つが逆を向くことがあるため。
+ * たとえば快削黄銅は材料こそ高いが削るのは楽で、切削では加工費が下がる側に出る。
+ * 1 本の序列にまとめると、この打ち消し合いが見えなくなる。
+ *
+ * 工法で表を分けているのは、効き方が違うため。切削では被削性（削りやすさ）が、
+ * 板金では曲げのスプリングバックや溶接後の歪みが効く。黄銅は切削では最も楽な部類だが、
+ * 板金では打痕の気づかいが要り、順位が入れ替わる。
+ */
+const MACHINABILITY: Record<string, Record<string, Machinability>> = {
+  切削: {
+    黄銅: { rank: 1, note: "快削材で削りやすい" },
+    アルミ: { rank: 2, note: "軟らかく削りやすい" },
+    鋼材: { rank: 3, note: "標準的な被削性" },
+    ステンレス: { rank: 4, note: "加工硬化しやすく、工具が持たない" },
+  },
+  板金: {
+    鋼材: { rank: 1, note: "曲げも溶接も素直" },
+    黄銅: { rank: 2, note: "軟らかいが打痕が付きやすい" },
+    アルミ: { rank: 3, note: "スプリングバックが大きく、傷が付きやすい" },
+    ステンレス: {
+      rank: 4,
+      note: "加工硬化とスプリングバックが大きく、溶接後の歪み取りも要る",
+    },
+  },
+};
+
+/** その工法でのその材質の加工しにくさ。表に無ければ null（方向を言わない）。 */
+export function machinability(
+  processCategory: string,
+  material: string,
+): Machinability | null {
+  const table = MACHINABILITY[processCategory];
+  if (!table) return null;
+  return table[materialFamily(material).family] ?? null;
+}
+
 export type SizeKind = "thickness" | "diameter";
 
 export interface PrimarySize {
@@ -339,23 +385,56 @@ export function priceDirections(target: PartSpec, candidate: PartSpec): PriceDir
   const targetMaterial = materialFamily(target.material);
   const candidateMaterial = materialFamily(candidate.material);
   if (targetMaterial.family !== candidateMaterial.family) {
-    const direction =
+    // 材質は材料費と加工費で逆を向くことがあるので、1 行にまとめない。
+    const costDirection =
       targetMaterial.rank === 0 || candidateMaterial.rank === 0
         ? "unknown"
         : targetMaterial.rank > candidateMaterial.rank
           ? "up"
           : "down";
     out.push({
-      item: "材質",
+      item: "材質（材料費）",
       change: `${candidate.material} → ${target.material}`,
-      direction,
+      direction: costDirection,
       effect:
-        direction === "unknown"
+        costDirection === "unknown"
           ? "材質の系統が判断できないため、材料費は要確認です"
           : `${candidateMaterial.family}から${targetMaterial.family}に変わるため、材料費は${
-              direction === "up" ? "上がる" : "下がる"
+              costDirection === "up" ? "上がる" : "下がる"
             }方向です`,
     });
+
+    // 加工のしやすさは工法で効き方が変わる。工法が違う候補では比べない
+    // （そのときは「工法」の行が、比較そのものが使えないと言っている）。
+    if (target.process_category === candidate.process_category) {
+      const targetWork = machinability(target.process_category, target.material);
+      const candidateWork = machinability(
+        candidate.process_category,
+        candidate.material,
+      );
+
+      if (!targetWork || !candidateWork) {
+        out.push({
+          item: "材質（加工性）",
+          change: `${candidate.material} → ${target.material}`,
+          direction: "unknown",
+          effect: `${target.process_category}でのこの材質の加工しやすさを判定表に持っていないため、加工費は要確認です`,
+        });
+      } else if (targetWork.rank !== candidateWork.rank) {
+        const workDirection = targetWork.rank > candidateWork.rank ? "up" : "down";
+        out.push({
+          item: "材質（加工性）",
+          change: `${candidate.material} → ${target.material}`,
+          direction: workDirection,
+          effect:
+            `${target.process_category}では` +
+            `${candidateMaterial.family}（${candidateWork.note}）より` +
+            `${targetMaterial.family}（${targetWork.note}）のほうが加工し${
+              workDirection === "up" ? "にくい" : "やすい"
+            }ため、加工費は${workDirection === "up" ? "上がる" : "下がる"}方向です`,
+        });
+      }
+    }
   }
 
   const targetSize = primarySize(target);

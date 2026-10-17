@@ -127,8 +127,11 @@ the unit price and total both read "not settled". What it gives you is:
   minimum lot are compared one row at a time. Each candidate's past quotes come with quote number,
   date, quantity and unit price plus a citation — and the unit price always carries
   **"reference only; not this part's price"**.
-- **Which way the price moves** — "material SPCC t1.6 → SUS304 t1.5 ↑ upward", arrows and words
-  only. **No percentages, no money**: there is no defensible coefficient behind them.
+- **Which way the price moves** — "thickness 1.2 → 1.5 ↑ upward", arrows and words only.
+  **No percentages, no money**: there is no defensible coefficient behind them.
+  Material gets **two separate rows — stock cost and workability** — because the two can point in
+  opposite directions, and a single ranking hides the cancellation. Workability depends on the
+  process, so that table is split between sheet metal and turning.
 - **Points a human must check**, in the same form as `/quote`.
 
 Actual output for CV-3015 (the part with no quote history):
@@ -141,11 +144,25 @@ Candidate 1  CV-2980  cover                                  similarity 0.927
   outline    280x140 -> 300x150   ^ upward
 
 Candidate 2  PL-1150  mounting plate                         similarity 0.654
-  material SPCC t1.6 -> SUS304 t1.5   ^ upward (carbon steel to stainless)
-  finish   zinc chromate -> #400 buffed   ? cannot say
+  material / stock cost   SPCC t1.6 -> SUS304 t1.5   ^ upward (carbon steel to stainless)
+  material / workability  SPCC t1.6 -> SUS304 t1.5   ^ upward
+                          stainless is harder to form (work hardening, springback)
+  finish                  zinc chromate -> #400 buffed   ? cannot say
 
 Unit price: not settled / Total: not settled
 ```
+
+The two can point **opposite ways**. Seen from SF-2040 (turned, S45C), candidate BS-4070
+(turned, C3604):
+
+```
+material / stock cost   C3604 -> S45C   v downward (brass to carbon steel)
+material / workability  C3604 -> S45C   ^ upward
+                        in turning, free-cutting brass cuts more easily than carbon steel
+```
+
+Free-cutting brass is the pricier stock but the easier cut. A single ranking would have hidden
+that. The opposite-direction case is pinned by vitest.
 
 If nothing reaches the floor (0.45), it lists no candidates and says **"no close part in the
 documents"** instead. SF-2040 (turned) is exactly that case. Listing a candidate that merely grazes
@@ -211,7 +228,7 @@ mfg-quote-assistant/
     pdf/         generated PDFs (committed)
     fonts/       IPAexGothic (IPA Font License v1.0 included)
   ingest/        Python: PDF generation, extraction, chunking, field extraction (48 pytest)
-  web/           Next.js App Router + TypeScript (149 vitest)
+  web/           Next.js App Router + TypeScript (158 vitest)
 ```
 
 ---
@@ -281,6 +298,10 @@ which provider is active.
   need fitting against actual quotes before use.
 - `/similar` only ever says upward, downward or cannot-say. Withholding a percentage is the point,
   not a gap: there is no coefficient behind one.
+- The workability table (turning: brass → aluminium → carbon steel → stainless, easiest first;
+  sheet metal: carbon steel → brass → aluminium → stainless) is shop common sense written down,
+  not something fitted to real jobs. A process or material missing from the table gets no ranking
+  at all — it falls through to "needs checking".
 
 ---
 

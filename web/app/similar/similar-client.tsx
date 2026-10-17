@@ -388,23 +388,28 @@ export function SimilarClient({ parts }: { parts: PartChoice[] }) {
                         {candidate.directions.map((direction) => (
                           <li
                             key={`${direction.item}-${direction.change}`}
-                            className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5"
+                            className="flex gap-x-2"
                           >
-                            <span className="text-muted w-16 shrink-0">
+                            <span className="text-muted w-28 shrink-0">
                               {direction.item}
                             </span>
-                            <span className="font-mono">{direction.change}</span>
-                            <span
-                              className={
-                                direction.direction === "unknown"
-                                  ? "text-muted"
-                                  : "text-warning"
-                              }
-                            >
-                              {DIRECTION_MARK[direction.direction]}{" "}
-                              {DIRECTION_LABEL[direction.direction]}
+                            {/* 説明が折り返しても、項目名の列に回り込ませない。 */}
+                            <span className="flex-1">
+                              <span className="font-mono">{direction.change}</span>
+                              <span
+                                className={`ml-2 ${
+                                  direction.direction === "unknown"
+                                    ? "text-muted"
+                                    : "text-warning"
+                                }`}
+                              >
+                                {DIRECTION_MARK[direction.direction]}{" "}
+                                {DIRECTION_LABEL[direction.direction]}
+                              </span>
+                              <span className="text-muted ml-2">
+                                {direction.effect}
+                              </span>
                             </span>
-                            <span className="text-muted">{direction.effect}</span>
                           </li>
                         ))}
                       </ul>
