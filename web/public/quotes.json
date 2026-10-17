@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16T07:49:32Z",
+  "generated_at": "2026-10-17T17:51:25Z",
   "company": "株式会社サンプル精機（架空）",
   "quotes": [
     {
@@ -90,6 +90,77 @@
       ]
     },
     {
+      "doc_id": "QUOTE-2026-0612",
+      "title": "御見積書 Q-2026-0612",
+      "pdf": "quote_2026-0612.pdf",
+      "page": 1,
+      "quote_no": "Q-2026-0612",
+      "issued_on": "2026-06-12",
+      "valid_until": "2026-07-12",
+      "customer": "ダミー産業株式会社（架空）",
+      "issuer": "株式会社サンプル精機（架空）",
+      "payment_terms": "月末締め翌月末現金払い",
+      "delivery_place": "発注者指定倉庫（運賃別途）",
+      "total_amount": 137000,
+      "lines": [
+        {
+          "drawing_no": "CV-2980",
+          "name": "カバー",
+          "material": "SUS304 t1.2",
+          "surface_treatment": "バフ研磨 #400",
+          "quantity": 50,
+          "unit_price": 2740,
+          "amount": 137000,
+          "material_cost": 980,
+          "processing_cost": 1340,
+          "surface_cost": 420,
+          "lead_time_days": 16
+        }
+      ]
+    },
+    {
+      "doc_id": "QUOTE-2026-0715",
+      "title": "御見積書 Q-2026-0715",
+      "pdf": "quote_2026-0715.pdf",
+      "page": 1,
+      "quote_no": "Q-2026-0715",
+      "issued_on": "2026-07-15",
+      "valid_until": "2026-08-14",
+      "customer": "株式会社テスト工業（架空）",
+      "issuer": "株式会社サンプル精機（架空）",
+      "payment_terms": "月末締め翌月末現金払い",
+      "delivery_place": "発注者指定倉庫（運賃別途）",
+      "total_amount": 273200,
+      "lines": [
+        {
+          "drawing_no": "PL-1150",
+          "name": "取付プレート",
+          "material": "SPCC t1.6",
+          "surface_treatment": "ユニクロメッキ",
+          "quantity": 120,
+          "unit_price": 1110,
+          "amount": 133200,
+          "material_cost": 310,
+          "processing_cost": 620,
+          "surface_cost": 180,
+          "lead_time_days": 14
+        },
+        {
+          "drawing_no": "BS-4070",
+          "name": "ブッシュ",
+          "material": "C3604",
+          "surface_treatment": "無処理",
+          "quantity": 100,
+          "unit_price": 1400,
+          "amount": 140000,
+          "material_cost": 540,
+          "processing_cost": 860,
+          "surface_cost": 0,
+          "lead_time_days": 18
+        }
+      ]
+    },
+    {
       "doc_id": "QUOTE-2026-0806",
       "title": "御見積書 Q-2026-0806",
       "pdf": "quote_2026-0806.pdf",
@@ -121,6 +192,42 @@
   ],
   "parts": [
     {
+      "doc_id": "SPEC-BS-4070",
+      "title": "部品仕様書 ブッシュ BS-4070",
+      "pdf": "spec_bs-4070.pdf",
+      "drawing_no": "BS-4070",
+      "name": "ブッシュ",
+      "material": "C3604",
+      "surface_treatment": "無処理",
+      "dimensions": "φ40 x L70 mm",
+      "tolerance": "φ40 h7 (0 / -0.025)",
+      "process_category": "切削",
+      "min_lot": 10,
+      "standard_lead_time_days": 18,
+      "issued_on": "2025-10-08",
+      "revision": "Rev.1",
+      "issuer": "株式会社サンプル精機（架空）",
+      "page": 1
+    },
+    {
+      "doc_id": "SPEC-CV-2980",
+      "title": "部品仕様書 カバー CV-2980",
+      "pdf": "spec_cv-2980.pdf",
+      "drawing_no": "CV-2980",
+      "name": "カバー",
+      "material": "SUS304 t1.2",
+      "surface_treatment": "バフ研磨 #400",
+      "dimensions": "280 x 140 x t1.2 mm",
+      "tolerance": "±0.3 mm",
+      "process_category": "板金",
+      "min_lot": 20,
+      "standard_lead_time_days": 14,
+      "issued_on": "2025-12-15",
+      "revision": "Rev.2",
+      "issuer": "株式会社サンプル精機（架空）",
+      "page": 1
+    },
+    {
       "doc_id": "SPEC-CV-3015",
       "title": "部品仕様書 カバー CV-3015",
       "pdf": "spec_cv-3015.pdf",
@@ -134,6 +241,24 @@
       "min_lot": 20,
       "standard_lead_time_days": 14,
       "issued_on": "2026-02-03",
+      "revision": "Rev.1",
+      "issuer": "株式会社サンプル精機（架空）",
+      "page": 1
+    },
+    {
+      "doc_id": "SPEC-PL-1150",
+      "title": "部品仕様書 取付プレート PL-1150",
+      "pdf": "spec_pl-1150.pdf",
+      "drawing_no": "PL-1150",
+      "name": "取付プレート",
+      "material": "SPCC t1.6",
+      "surface_treatment": "ユニクロメッキ",
+      "dimensions": "260 x 160 x t1.6 mm",
+      "tolerance": "±0.3 mm",
+      "process_category": "板金",
+      "min_lot": 20,
+      "standard_lead_time_days": 14,
+      "issued_on": "2026-01-20",
       "revision": "Rev.1",
       "issuer": "株式会社サンプル精機（架空）",
       "page": 1

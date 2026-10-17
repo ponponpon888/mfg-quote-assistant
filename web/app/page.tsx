@@ -48,6 +48,19 @@ export default function HomePage() {
             過去見積と社内ルールから単価を組み立てます。「人が確認すべき点」も一緒に出します。
           </p>
         </Link>
+
+        <Link
+          href="/similar"
+          className="border-line bg-surface hover:border-accent group flex flex-col gap-2 rounded-lg border p-5 transition-colors"
+        >
+          <h2 className="group-hover:text-accent text-lg font-semibold transition-colors">
+            類似品から相談する →
+          </h2>
+          <p className="text-muted text-sm">
+            過去見積が無い図番でも、仕様の近い部品の実績を根拠つきで出します。
+            単価は作らず、違いで単価がどちらに振れるかだけを示します。
+          </p>
+        </Link>
       </section>
 
       <section className="flex flex-col gap-4">

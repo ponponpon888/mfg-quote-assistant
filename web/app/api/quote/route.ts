@@ -5,6 +5,7 @@
  * 失敗しても金額には影響しない（だから LLM が落ちても下書きは返す）。
  */
 
+import { buildFollowUp } from "@/lib/followup";
 import { parseInquiry } from "@/lib/inquiry";
 import { getLLM, getProviderName } from "@/lib/llm";
 import { buildQuoteDraft } from "@/lib/quote";
@@ -30,6 +31,10 @@ export async function POST(request: Request) {
   const draft = buildQuoteDraft(parsed.items);
   const reviewPoints = [...parsed.issues, ...draft.reviewPoints];
 
+  // 「次の一手」の文面も、確認事項を合わせたあとの下書きから組み立てる。
+  // 抽出しきれなかった点（parsed.issues）も確認依頼に乗る必要があるため。
+  const followUp = buildFollowUp({ ...draft, reviewPoints });
+
   let note = "";
   let provider = getProviderName();
   let noteError: string | null = null;
@@ -51,6 +56,7 @@ export async function POST(request: Request) {
     unquotedDrawingNumbers: draft.unquotedDrawingNumbers,
     quoteValidityDays: draft.quoteValidityDays,
     reviewPoints,
+    followUp,
     note,
     noteError,
     provider,

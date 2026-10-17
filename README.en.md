@@ -2,13 +2,15 @@
 
 Live demo: https://mfg-quote-assistant.vercel.app (fictional company and documents)
 
-Ask a question against eight internal manufacturing documents (PDFs) and you get an answer plus
+Ask a question against thirteen internal manufacturing documents (PDFs) and you get an answer plus
 its **citation** — document, page and the quoted passage. Paste an inquiry email and it reads the
-part number, quantity and lead time, then drafts a quote from past quotes and the internal pricing
-rules. The money is computed in code; **the LLM only writes the prose**. Unit price, volume
+part number, quantity and lead time, drafts a quote from past quotes and the internal pricing
+rules, then writes the two messages that come next: the internal question and the first reply to
+the customer. The money is computed in code; **the LLM only writes the prose**. Unit price, volume
 discount and rush surcharge are pinned by tests, so changing the model does not change the figure.
-A part with no quote history gets no unit price — it shows as **"not priced"** and the total reads
-**"not settled"**. Every company, part number and document here is fictional.
+A part with no quote history gets no unit price — it shows as **"not priced"**, the total reads
+**"not settled"**, and the parts closest to it in spec are listed with citations instead.
+Every company, part number and document here is fictional.
 
 Built with Next.js (TypeScript) and Python. It runs on a `mock` provider that calls no external
 API by default; one environment variable switches it to Claude.
@@ -89,6 +91,69 @@ explicitly marked as not being the total*
 
 `/quote?sample=inquiry-01` (or `inquiry-02`) opens the page with that sample already drafted.
 
+#### What comes next
+
+Below the draft sit two collapsed panels holding **the work that follows**. Stopping at the draft
+leaves the rest of the exchange in someone's head.
+
+- **The internal question** — every "point a human must check", turned into a question. If a line
+  has no price, it links to `/similar?part=…`.
+- **The first reply to the customer** — priced lines carry their figures; an unpriced line says
+  "we will confirm the unit price and reply within 3 business days".
+
+Actual output for sample 2:
+
+```
+SF-2040  qty 60  5,600 JPY  336,000 JPY  18 business days
+CV-3015  qty 30  we will confirm the unit price and reply within 3 business days
+
+The subtotal for the priced lines is 336,000 JPY (excl. tax).
+CV-3015 is not priced yet, so the overall total is not settled.
+```
+
+That the unsettled total never appears as a figure is pinned by vitest (the text must not contain
+`合計 <number> 円`). The wording comes from a deterministic template in `lib/followup.ts`; no LLM
+is involved.
+
+### 3. Find similar parts (`/similar`)
+
+![Similar parts screen](docs/screenshots/similar.png)
+
+A part with no quote history still has neighbours. **This page does not produce a unit price** —
+the unit price and total both read "not settled". What it gives you is:
+
+- **The target's spec**, with a citation into the spec sheet.
+- **Ranked candidates** (up to three). Process, material, thickness, outline, finish, tolerance and
+  minimum lot are compared one row at a time. Each candidate's past quotes come with quote number,
+  date, quantity and unit price plus a citation — and the unit price always carries
+  **"reference only; not this part's price"**.
+- **Which way the price moves** — "material SPCC t1.6 → SUS304 t1.5 ↑ upward", arrows and words
+  only. **No percentages, no money**: there is no defensible coefficient behind them.
+- **Points a human must check**, in the same form as `/quote`.
+
+Actual output for CV-3015 (the part with no quote history):
+
+```
+Candidate 1  CV-2980  cover                                  similarity 0.927
+  process sheet metal / sheet metal   material SUS304 t1.2 / SUS304 t1.5   finish same
+  Q-2026-0612 (2026-06-12)  qty 50  2,740 JPY  reference only; not this part's price
+  thickness  1.2 -> 1.5   ^ upward
+  outline    280x140 -> 300x150   ^ upward
+
+Candidate 2  PL-1150  mounting plate                         similarity 0.654
+  material SPCC t1.6 -> SUS304 t1.5   ^ upward (carbon steel to stainless)
+  finish   zinc chromate -> #400 buffed   ? cannot say
+
+Unit price: not settled / Total: not settled
+```
+
+If nothing reaches the floor (0.45), it lists no candidates and says **"no close part in the
+documents"** instead. SF-2040 (turned) is exactly that case. Listing a candidate that merely grazes
+the threshold reads as "there is something close", so it is cut the same way `answer.ts` cuts
+weak search hits.
+
+`/similar?part=CV-3015` opens the page on that part.
+
 ---
 
 ## Design notes
@@ -146,7 +211,7 @@ mfg-quote-assistant/
     pdf/         generated PDFs (committed)
     fonts/       IPAexGothic (IPA Font License v1.0 included)
   ingest/        Python: PDF generation, extraction, chunking, field extraction (48 pytest)
-  web/           Next.js App Router + TypeScript (94 vitest)
+  web/           Next.js App Router + TypeScript (149 vitest)
 ```
 
 ---
@@ -210,6 +275,12 @@ which provider is active.
 - The internal rule figures come from YAML (regex over prose is brittle), but the cited page
   numbers come from the extracted PDF, so a drift between the two fails the tests.
 - The minimum-order-value branch (30,000 JPY) is unreachable with the current fictional data.
+- The similarity weights in `/similar` (process 0.35, material 0.20, thickness 0.15, outline 0.10,
+  finish 0.10, tolerance 0.05, minimum lot 0.05) and the 0.45 floor were not tuned against real
+  data. They encode one ordering — "a different process makes the figure unusable" — and would
+  need fitting against actual quotes before use.
+- `/similar` only ever says upward, downward or cannot-say. Withholding a percentage is the point,
+  not a gap: there is no coefficient behind one.
 
 ---
 
