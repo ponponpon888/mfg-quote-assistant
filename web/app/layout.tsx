@@ -22,6 +22,7 @@ const NAV = [
   { href: "/", label: "概要" },
   { href: "/ask", label: "書類に質問する" },
   { href: "/quote", label: "見積の下書き" },
+  { href: "/similar", label: "類似品から相談" },
 ];
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

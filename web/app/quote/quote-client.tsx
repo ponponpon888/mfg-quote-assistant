@@ -40,6 +40,12 @@ interface QuoteItem {
   note: string;
 }
 
+/** 下書きのあとにやる仕事の文面。決定的なテンプレートで、LLM を通していない。 */
+interface FollowUp {
+  internalRequest: string;
+  customerReply: string;
+}
+
 interface QuoteResponse {
   items: QuoteItem[];
   /** 単価が確定した明細だけの合計。未見積があるときは確定額ではない。 */
@@ -48,6 +54,7 @@ interface QuoteResponse {
   unquotedDrawingNumbers: string[];
   quoteValidityDays: number;
   reviewPoints: string[];
+  followUp: FollowUp;
   note: string;
   noteError: string | null;
   provider: string;
@@ -359,6 +366,56 @@ export function QuoteClient({ samples }: { samples: Sample[] }) {
                 ))}
               </ul>
             )}
+          </section>
+
+          {/* 下書きで終わらせず、次にやる仕事の文面まで出す。
+              文面は決定的なテンプレートで、LLM を通していない。 */}
+          <section className="flex flex-col gap-3">
+            <h2 className="text-muted text-xs font-semibold tracking-wide uppercase">
+              次の一手
+            </h2>
+
+            <details className="border-line bg-surface rounded-lg border p-4 text-xs">
+              <summary className="cursor-pointer font-semibold">
+                社内の確認依頼（ベテラン宛て）
+              </summary>
+              <pre className="mt-3 font-mono text-xs leading-relaxed whitespace-pre-wrap">
+                {result.followUp.internalRequest}
+              </pre>
+            </details>
+
+            <details className="border-line bg-surface rounded-lg border p-4 text-xs">
+              <summary className="cursor-pointer font-semibold">
+                お客さんへの回答メール下書き
+                {result.hasUnquotedItems && (
+                  <span className="text-warning ml-2 font-normal">
+                    未確定の合計は書きません
+                  </span>
+                )}
+              </summary>
+              <pre className="mt-3 font-mono text-xs leading-relaxed whitespace-pre-wrap">
+                {result.followUp.customerReply}
+              </pre>
+              {result.hasUnquotedItems && (
+                <p className="text-muted mt-3">
+                  {result.unquotedDrawingNumbers.join("、")}{" "}
+                  は単価を書かず、回答期限だけを伝える文面にしています。
+                  類似品の候補は{" "}
+                  {result.unquotedDrawingNumbers.map((drawingNo, index) => (
+                    <span key={drawingNo}>
+                      {index > 0 && "、"}
+                      <Link
+                        href={`/similar?part=${drawingNo}`}
+                        className="text-accent hover:underline"
+                      >
+                        /similar?part={drawingNo}
+                      </Link>
+                    </span>
+                  ))}{" "}
+                  で確認できます。
+                </p>
+              )}
+            </details>
           </section>
         </div>
       )}

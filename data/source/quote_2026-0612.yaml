@@ -1,0 +1,27 @@
+doc_id: QUOTE-2026-0612
+doc_type: quote
+title: 御見積書 Q-2026-0612
+issued_on: 2026-06-12
+quote_no: Q-2026-0612
+customer: ダミー産業株式会社（架空）
+issuer: 株式会社サンプル精機（架空）
+valid_until: 2026-07-12
+payment_terms: 月末締め翌月末現金払い
+delivery_place: 発注者指定倉庫（運賃別途）
+lines:
+  - drawing_no: CV-2980
+    name: カバー
+    material: SUS304 t1.2
+    surface_treatment: "バフ研磨 #400"
+    quantity: 50
+    material_cost: 980
+    processing_cost: 1340
+    surface_cost: 420
+    unit_price: 2740
+    amount: 137000
+    lead_time_days: 16
+notes: |
+  ・本見積は材料費改定（2026-07-01）前の単価です。
+  ・数量 50 個は最小ロット 20 個を満たしています。
+  ・意匠面のバフ研磨は外注工程のため、納期は 16 営業日としています。
+  ・上記金額に消費税は含まれておりません。

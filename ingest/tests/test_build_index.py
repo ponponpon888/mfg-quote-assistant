@@ -33,9 +33,9 @@ def test_counts(built) -> None:
     stats, _, _ = built
     assert stats == {
         **stats,
-        "docs": 8,
-        "quotes": 4,
-        "parts": 3,
+        "docs": 13,
+        "quotes": 6,
+        "parts": 6,
         "has_rules": True,
     }
     assert stats["chunks"] > 20

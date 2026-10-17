@@ -1,0 +1,38 @@
+doc_id: QUOTE-2026-0715
+doc_type: quote
+title: 御見積書 Q-2026-0715
+issued_on: 2026-07-15
+quote_no: Q-2026-0715
+customer: 株式会社テスト工業（架空）
+issuer: 株式会社サンプル精機（架空）
+valid_until: 2026-08-14
+payment_terms: 月末締め翌月末現金払い
+delivery_place: 発注者指定倉庫（運賃別途）
+lines:
+  - drawing_no: PL-1150
+    name: 取付プレート
+    material: SPCC t1.6
+    surface_treatment: ユニクロメッキ
+    quantity: 120
+    material_cost: 310
+    processing_cost: 620
+    surface_cost: 180
+    unit_price: 1110
+    amount: 133200
+    lead_time_days: 14
+  - drawing_no: BS-4070
+    name: ブッシュ
+    material: C3604
+    surface_treatment: 無処理
+    quantity: 100
+    material_cost: 540
+    processing_cost: 860
+    surface_cost: 0
+    unit_price: 1400
+    amount: 140000
+    lead_time_days: 18
+notes: |
+  ・本見積は材料費改定（2026-07-01）後の単価です。
+  ・PL-1150 の数量 120 個には数量値引 3% を適用済みです。
+  ・BS-4070 は黄銅材のため、材料費は銅相場の変動を受けます。
+  ・上記金額に消費税は含まれておりません。
