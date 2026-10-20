@@ -305,6 +305,18 @@ which provider is active.
 
 ---
 
+## Author
+
+**Shingo Kumon** (公門 慎吾)
+
+Builds web services and business tools with AI-assisted development, and runs several of them in production.
+
+- More projects: [GitHub profile](https://github.com/ponponpon888)
+- Web: [shingokumon.com](https://www.shingokumon.com) / X: [@shingo_kumon](https://x.com/shingo_kumon)
+- Work enquiries (contract, fully remote): [contact](https://www.shingokumon.com/contact)
+
+---
+
 ## Assets
 
 `data/fonts/ipaexg.ttf` is IPAexGothic, under the IPA Font License v1.0. The full licence text is
