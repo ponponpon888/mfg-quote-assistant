@@ -317,6 +317,13 @@ Builds web services and business tools with AI-assisted development, and runs se
 
 ---
 
+## License
+
+Code is released under the MIT License ([LICENSE](LICENSE)).
+The fonts in `data/fonts/` are under the IPA Font License v1.0 and are not covered by the MIT License.
+
+---
+
 ## Assets
 
 `data/fonts/ipaexg.ttf` is IPAexGothic, under the IPA Font License v1.0. The full licence text is
