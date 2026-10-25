@@ -72,6 +72,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               {quoteData.quotes.length} 件 ・ インデックス生成{" "}
               {searchIndex.generated_at}
             </p>
+            <p>
+              Built by{" "}
+              <a
+                href="https://www.shingokumon.com"
+                target="_blank"
+                rel="noopener"
+                className="hover:text-accent transition-colors"
+              >
+                Shingo Kumon（公門 慎吾）
+              </a>
+            </p>
           </div>
         </footer>
       </body>
